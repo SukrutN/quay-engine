@@ -1,0 +1,193 @@
+openapi: 3.0.3
+info:
+  title: Quay slotting
+  version: 1.0.0
+  description: |
+    Slots one forward pick face. Send a published fixture name or an inline face document.
+    The service does not keep a warehouse, an order stream, or a user directory.
+paths:
+  /health:
+    get:
+      operationId: health
+      responses:
+        "200":
+          description: The process is serving.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status]
+                properties:
+                  status:
+                    type: string
+                    example: up
+  /v1/openapi.yaml:
+    get:
+      operationId: openApi
+      responses:
+        "200":
+          description: This document.
+          content:
+            application/yaml:
+              schema:
+                type: string
+  /v1/slotting:
+    post:
+      operationId: slotFace
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: "#/components/schemas/FixtureRequest"
+                - $ref: "#/components/schemas/InlineRequest"
+      responses:
+        "200":
+          description: A proposal, and the current layout when the document included one.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SlottingReport"
+        "400":
+          description: The fixture is unknown or the face cannot be slotted.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+components:
+  schemas:
+    FixtureRequest:
+      type: object
+      required: [fixture]
+      properties:
+        fixture:
+          type: string
+          example: lane
+    InlineRequest:
+      type: object
+      required: [face]
+      properties:
+        face:
+          type: object
+          description: A face document. See docs/customizing.md.
+    Problem:
+      type: object
+      required: [type, title, status, detail, instance]
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+        instance:
+          type: string
+        reasons:
+          type: array
+          items:
+            type: string
+    SlottingReport:
+      type: object
+      required: [faceId, faceName, mode, elapsedMillis, proposal]
+      properties:
+        faceId:
+          type: string
+        faceName:
+          type: string
+        mode:
+          type: string
+          enum: [replan, improve]
+        elapsedMillis:
+          type: integer
+        proposal:
+          $ref: "#/components/schemas/Outcome"
+        current:
+          $ref: "#/components/schemas/Outcome"
+        comparison:
+          $ref: "#/components/schemas/Comparison"
+    Outcome:
+      type: object
+      required: [assignment, metrics, cost]
+      properties:
+        assignment:
+          type: array
+          items:
+            $ref: "#/components/schemas/AssignmentRow"
+        metrics:
+          $ref: "#/components/schemas/Metrics"
+        cost:
+          $ref: "#/components/schemas/Cost"
+    AssignmentRow:
+      type: object
+      required: [slotId, skuId, skuName, level, ergonomics, returnMeters, cubeFit]
+      properties:
+        slotId:
+          type: string
+        skuId:
+          type: string
+        skuName:
+          type: string
+        level:
+          type: integer
+        ergonomics:
+          type: string
+          enum: [golden, floor, beam]
+        zone:
+          type: string
+        returnMeters:
+          type: number
+        cubeFit:
+          type: number
+    Metrics:
+      type: object
+      properties:
+        travelPickMeters:
+          type: number
+        goldenPickShare:
+          type: number
+        meanCubeFit:
+          type: number
+        heavyAboveLimit:
+          type: integer
+        meanAffinitySteps:
+          type: number
+        placed:
+          type: integer
+        picksPerDay:
+          type: number
+    Cost:
+      type: object
+      properties:
+        travel:
+          type: number
+        waste:
+          type: number
+        golden:
+          type: number
+        lightFloor:
+          type: number
+        affinity:
+          type: number
+        total:
+          type: number
+    Comparison:
+      type: object
+      properties:
+        travelPickMetersBefore:
+          type: number
+        travelPickMetersAfter:
+          type: number
+        travelChange:
+          type: number
+        travelReduction:
+          type: number
+          description: Fraction of current travel removed. Negative when the proposal walks farther.
+        objectiveBefore:
+          type: number
+        objectiveAfter:
+          type: number
+        objectiveChange:
+          type: number

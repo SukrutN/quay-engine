@@ -1,0 +1,351 @@
+{
+  "id": "forward-pick",
+  "name": "House 4 forward pick",
+  "rack": {
+    "aisles": [
+      "A",
+      "B",
+      "C",
+      "D",
+      "E"
+    ],
+    "bays": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "levels": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "goldenLevels": [
+      2,
+      3
+    ],
+    "floorLevel": 1,
+    "wideBays": [
+      2,
+      5,
+      8
+    ],
+    "wideMultiplier": 1.4,
+    "cubeLitersByLevel": {
+      "1": 46,
+      "2": 30,
+      "3": 22,
+      "4": 12
+    },
+    "dockToFirstAisleMeters": 4.2,
+    "aislePitchMeters": 3.6,
+    "mouthToFirstBayMeters": 2.4,
+    "bayPitchMeters": 2.5
+  },
+  "skus": [
+    {
+      "id": "MG-01",
+      "name": "Blue tin coffee",
+      "picksPerDay": 240,
+      "cubeLiters": 4.2,
+      "weightKg": 1.6
+    },
+    {
+      "id": "MG-02",
+      "name": "Paper sleeve filters",
+      "picksPerDay": 188,
+      "cubeLiters": 1.4,
+      "weightKg": 0.3
+    },
+    {
+      "id": "MG-03",
+      "name": "Matchbox cloves",
+      "picksPerDay": 156,
+      "cubeLiters": 0.9,
+      "weightKg": 0.2
+    },
+    {
+      "id": "MG-04",
+      "name": "Rye cracker crates",
+      "picksPerDay": 142,
+      "cubeLiters": 18,
+      "weightKg": 6.4
+    },
+    {
+      "id": "MG-05",
+      "name": "Fennel salt tins",
+      "picksPerDay": 128,
+      "cubeLiters": 3.1,
+      "weightKg": 2.8
+    },
+    {
+      "id": "MG-06",
+      "name": "Peppercorn drums",
+      "picksPerDay": 110,
+      "cubeLiters": 6.5,
+      "weightKg": 3.2
+    },
+    {
+      "id": "MG-07",
+      "name": "Cedar soap bars",
+      "picksPerDay": 96,
+      "cubeLiters": 5,
+      "weightKg": 2.4
+    },
+    {
+      "id": "MG-08",
+      "name": "Lemon oil vials",
+      "picksPerDay": 90,
+      "cubeLiters": 1.2,
+      "weightKg": 0.5
+    },
+    {
+      "id": "MG-09",
+      "name": "Honeycomb wraps",
+      "picksPerDay": 84,
+      "cubeLiters": 2.4,
+      "weightKg": 0.4
+    },
+    {
+      "id": "MG-10",
+      "name": "Linen tea towels",
+      "picksPerDay": 72,
+      "cubeLiters": 8,
+      "weightKg": 1.1
+    },
+    {
+      "id": "MG-11",
+      "name": "River oat sacks",
+      "picksPerDay": 64,
+      "cubeLiters": 28,
+      "weightKg": 14.5
+    },
+    {
+      "id": "MG-12",
+      "name": "White bean sacks",
+      "picksPerDay": 58,
+      "cubeLiters": 26,
+      "weightKg": 15.2
+    },
+    {
+      "id": "MG-13",
+      "name": "Cask vinegar jugs",
+      "picksPerDay": 52,
+      "cubeLiters": 16,
+      "weightKg": 13.4
+    },
+    {
+      "id": "MG-14",
+      "name": "Birch syrup bottles",
+      "picksPerDay": 48,
+      "cubeLiters": 11,
+      "weightKg": 9.6
+    },
+    {
+      "id": "MG-15",
+      "name": "Pilot candle tins",
+      "picksPerDay": 44,
+      "cubeLiters": 3.6,
+      "weightKg": 1.8
+    },
+    {
+      "id": "MG-16",
+      "name": "Glass lamp oil",
+      "picksPerDay": 40,
+      "cubeLiters": 9.5,
+      "weightKg": 12.8
+    },
+    {
+      "id": "MG-17",
+      "name": "Citrus peel jars",
+      "picksPerDay": 36,
+      "cubeLiters": 7.2,
+      "weightKg": 4.4
+    },
+    {
+      "id": "MG-18",
+      "name": "Ash wood spoons",
+      "picksPerDay": 32,
+      "cubeLiters": 4.8,
+      "weightKg": 0.9
+    },
+    {
+      "id": "MG-19",
+      "name": "Wool dryer balls",
+      "picksPerDay": 28,
+      "cubeLiters": 10,
+      "weightKg": 0.7
+    },
+    {
+      "id": "MG-20",
+      "name": "Copper measuring cups",
+      "picksPerDay": 24,
+      "cubeLiters": 3.4,
+      "weightKg": 2.6
+    },
+    {
+      "id": "MG-21",
+      "name": "Millet grain bags",
+      "picksPerDay": 22,
+      "cubeLiters": 24,
+      "weightKg": 13.8
+    },
+    {
+      "id": "MG-22",
+      "name": "Ink bottle black",
+      "picksPerDay": 18,
+      "cubeLiters": 1.1,
+      "weightKg": 0.6
+    },
+    {
+      "id": "MG-23",
+      "name": "Night chalk sticks",
+      "picksPerDay": 16,
+      "cubeLiters": 2,
+      "weightKg": 1.4
+    },
+    {
+      "id": "MG-24",
+      "name": "Canvas mailers",
+      "picksPerDay": 14,
+      "cubeLiters": 12,
+      "weightKg": 0.8
+    },
+    {
+      "id": "MG-25",
+      "name": "Iron pan blanks",
+      "picksPerDay": 12,
+      "cubeLiters": 20,
+      "weightKg": 16.4
+    },
+    {
+      "id": "MG-26",
+      "name": "Clay planter saucers",
+      "picksPerDay": 11,
+      "cubeLiters": 22,
+      "weightKg": 14.1
+    },
+    {
+      "id": "MG-27",
+      "name": "Stone mortar",
+      "picksPerDay": 9,
+      "cubeLiters": 15,
+      "weightKg": 18.2
+    },
+    {
+      "id": "MG-28",
+      "name": "Folding crate lids",
+      "picksPerDay": 8,
+      "cubeLiters": 34,
+      "weightKg": 4.2
+    },
+    {
+      "id": "MG-29",
+      "name": "Bolt of ticking cloth",
+      "picksPerDay": 8,
+      "cubeLiters": 40,
+      "weightKg": 7.5
+    },
+    {
+      "id": "MG-30",
+      "name": "Rain boot corks",
+      "picksPerDay": 7,
+      "cubeLiters": 14,
+      "weightKg": 1.2
+    }
+  ],
+  "affinities": [
+    {
+      "skuA": "MG-01",
+      "skuB": "MG-02",
+      "strength": 0.92
+    },
+    {
+      "skuA": "MG-01",
+      "skuB": "MG-03",
+      "strength": 0.74
+    },
+    {
+      "skuA": "MG-01",
+      "skuB": "MG-04",
+      "strength": 0.48
+    },
+    {
+      "skuA": "MG-01",
+      "skuB": "MG-11",
+      "strength": 0.36
+    },
+    {
+      "skuA": "MG-05",
+      "skuB": "MG-04",
+      "strength": 0.81
+    },
+    {
+      "skuA": "MG-05",
+      "skuB": "MG-06",
+      "strength": 0.7
+    },
+    {
+      "skuA": "MG-05",
+      "skuB": "MG-13",
+      "strength": 0.52
+    },
+    {
+      "skuA": "MG-05",
+      "skuB": "MG-17",
+      "strength": 0.45
+    },
+    {
+      "skuA": "MG-07",
+      "skuB": "MG-08",
+      "strength": 0.66
+    },
+    {
+      "skuA": "MG-07",
+      "skuB": "MG-10",
+      "strength": 0.73
+    },
+    {
+      "skuA": "MG-07",
+      "skuB": "MG-09",
+      "strength": 0.6
+    },
+    {
+      "skuA": "MG-11",
+      "skuB": "MG-12",
+      "strength": 0.7
+    },
+    {
+      "skuA": "MG-16",
+      "skuB": "MG-15",
+      "strength": 0.78
+    },
+    {
+      "skuA": "MG-03",
+      "skuB": "MG-14",
+      "strength": 0.3
+    }
+  ],
+  "policy": {
+    "travelWeight": 1,
+    "wasteWeight": 4,
+    "affinityWeight": 4,
+    "goldenWeight": 2,
+    "lightFloorWeight": 8,
+    "slowPickCutoff": 30,
+    "lightKg": 2.2,
+    "heavyKg": 12,
+    "maxLevelForHeavy": 1,
+    "ergoGolden": 1,
+    "ergoFloor": 1.12,
+    "ergoBeam": 1.35,
+    "affinityDecayBays": 2.5,
+    "maxPasses": 4
+  },
+  "mode": "replan"
+}

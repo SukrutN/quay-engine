@@ -1,0 +1,45 @@
+{
+  "id": "lane",
+  "name": "Lane chill corner",
+  "slots": [
+    {"id": "A-01-L2", "aisle": "A", "aisleIndex": 0, "bay": 1, "bayIndex": 0, "level": 2, "cubeLiters": 24, "returnMeters": 8, "ergonomics": "golden", "zone": "ambient"},
+    {"id": "A-01-L1", "aisle": "A", "aisleIndex": 0, "bay": 1, "bayIndex": 0, "level": 1, "cubeLiters": 40, "returnMeters": 8, "ergonomics": "floor", "zone": "ambient"},
+    {"id": "A-03-L2", "aisle": "A", "aisleIndex": 0, "bay": 3, "bayIndex": 2, "level": 2, "cubeLiters": 24, "returnMeters": 20, "ergonomics": "golden", "zone": "ambient"},
+    {"id": "B-01-L2", "aisle": "B", "aisleIndex": 1, "bay": 1, "bayIndex": 0, "level": 2, "cubeLiters": 16, "returnMeters": 28, "ergonomics": "golden", "zone": "chill"},
+    {"id": "B-01-L1", "aisle": "B", "aisleIndex": 1, "bay": 1, "bayIndex": 0, "level": 1, "cubeLiters": 30, "returnMeters": 28, "ergonomics": "floor", "zone": "chill"},
+    {"id": "B-02-L1", "aisle": "B", "aisleIndex": 1, "bay": 2, "bayIndex": 1, "level": 1, "cubeLiters": 40, "returnMeters": 36, "ergonomics": "floor", "zone": "ambient"}
+  ],
+  "skus": [
+    {"id": "LN-01", "name": "Oat milk", "picksPerDay": 50, "cubeLiters": 8, "weightKg": 4, "zone": "ambient"},
+    {"id": "LN-02", "name": "Yogurt", "picksPerDay": 22, "cubeLiters": 4, "weightKg": 2.5, "zone": "chill"},
+    {"id": "LN-03", "name": "Steel stockpot", "picksPerDay": 9, "cubeLiters": 18, "weightKg": 13.5, "zone": "ambient"},
+    {"id": "LN-04", "name": "Cloth filters", "picksPerDay": 16, "cubeLiters": 1.5, "weightKg": 0.3, "zone": "ambient"}
+  ],
+  "affinities": [
+    {"skuA": "LN-01", "skuB": "LN-04", "strength": 0.85}
+  ],
+  "locked": {"LN-03": "A-01-L1"},
+  "current": {
+    "B-02-L1": "LN-01",
+    "B-01-L1": "LN-02",
+    "A-01-L1": "LN-03",
+    "A-03-L2": "LN-04"
+  },
+  "policy": {
+    "travelWeight": 1,
+    "wasteWeight": 10,
+    "affinityWeight": 2,
+    "goldenWeight": 0.5,
+    "lightFloorWeight": 5,
+    "slowPickCutoff": 15,
+    "lightKg": 1,
+    "heavyKg": 12,
+    "maxLevelForHeavy": 1,
+    "ergoGolden": 1,
+    "ergoFloor": 1.12,
+    "ergoBeam": 1.3,
+    "affinityDecayBays": 2,
+    "maxPasses": 4
+  },
+  "mode": "replan"
+}
