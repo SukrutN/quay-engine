@@ -30,15 +30,15 @@ public final class FaceJson {
     private static final ObjectMapper MAPPER = new ObjectMapper();
     private static final Set<String> ROOT = Set.of(
             "id", "name", "rack", "slots", "skus", "affinities", "current", "locked", "policy", "mode");
-    private static final Set<String> RACK = Set.of(
+    static final Set<String> RACK = Set.of(
             "aisles", "bays", "levels", "goldenLevels", "floorLevel", "wideBays", "wideMultiplier",
             "cubeLitersByLevel", "dockToFirstAisleMeters", "aislePitchMeters", "mouthToFirstBayMeters",
             "bayPitchMeters");
-    private static final Set<String> SLOT = Set.of(
+    static final Set<String> SLOT = Set.of(
             "id", "aisle", "aisleIndex", "bay", "bayIndex", "level", "cubeLiters", "returnMeters",
             "ergonomics", "zone");
-    private static final Set<String> SKU = Set.of("id", "name", "picksPerDay", "cubeLiters", "weightKg", "zone");
-    private static final Set<String> AFFINITY = Set.of("skuA", "skuB", "strength");
+    static final Set<String> SKU = Set.of("id", "name", "picksPerDay", "cubeLiters", "weightKg", "zone");
+    static final Set<String> AFFINITY = Set.of("skuA", "skuB", "strength");
     private static final Set<String> POLICY = Set.of(
             "travelWeight", "wasteWeight", "affinityWeight", "goldenWeight", "lightFloorWeight",
             "slowPickCutoff", "lightKg", "heavyKg", "maxLevelForHeavy", "ergoGolden", "ergoFloor",
@@ -63,7 +63,7 @@ public final class FaceJson {
     }
 
     public static PickFace parse(JsonNode root) {
-        Read read = new Read();
+        DocRead read = new DocRead();
         if (root == null || !root.isObject()) {
             throw new FaceRejection(List.of("The face document must be a JSON object."));
         }
@@ -99,7 +99,9 @@ public final class FaceJson {
         if (root.has("current") && current.isEmpty() && (root.get("current") == null || root.get("current").isObject())) {
             read.problems.add("current must assign every SKU.");
         }
-        read.finish();
+        if (!read.problems.isEmpty()) {
+            throw new FaceRejection(read.problems);
+        }
 
         PickFace face = new PickFace(
                 id,
@@ -115,7 +117,7 @@ public final class FaceJson {
         return face;
     }
 
-    private static List<Slot> readRack(Read read, JsonNode rack) {
+    static List<Slot> readRack(DocRead read, JsonNode rack) {
         List<String> aisles = read.strings(rack, "aisles", "rack");
         List<Integer> bays = read.integers(rack, "bays", "rack");
         List<Integer> levels = read.integers(rack, "levels", "rack");
@@ -140,7 +142,7 @@ public final class FaceJson {
         }
     }
 
-    private static Map<Integer, Double> readLevelCubes(Read read, JsonNode node) {
+    static Map<Integer, Double> readLevelCubes(DocRead read, JsonNode node) {
         Map<Integer, Double> cubes = new LinkedHashMap<>();
         if (node == null || node.isNull()) {
             read.problems.add("rack.cubeLitersByLevel is required.");
@@ -167,7 +169,7 @@ public final class FaceJson {
         return cubes;
     }
 
-    private static List<Slot> readSlots(Read read, JsonNode node) {
+    static List<Slot> readSlots(DocRead read, JsonNode node) {
         if (node == null || !node.isArray()) {
             read.problems.add("slots must be an array.");
             return List.of();
@@ -200,7 +202,7 @@ public final class FaceJson {
         return slots;
     }
 
-    private static List<Sku> readSkus(Read read, JsonNode node) {
+    static List<Sku> readSkus(DocRead read, JsonNode node) {
         if (node == null || node.isNull()) {
             read.problems.add("skus is required.");
             return List.of();
@@ -230,7 +232,7 @@ public final class FaceJson {
         return skus;
     }
 
-    private static List<Affinity> readAffinities(Read read, JsonNode node) {
+    static List<Affinity> readAffinities(DocRead read, JsonNode node) {
         if (node == null || node.isNull()) {
             return List.of();
         }
@@ -256,7 +258,7 @@ public final class FaceJson {
         return affinities;
     }
 
-    private static Map<String, String> readStringMap(Read read, JsonNode node, String path) {
+    private static Map<String, String> readStringMap(DocRead read, JsonNode node, String path) {
         Map<String, String> values = new LinkedHashMap<>();
         if (node == null || node.isNull()) {
             return values;
@@ -277,7 +279,7 @@ public final class FaceJson {
         return values;
     }
 
-    private static Policy readPolicy(Read read, JsonNode node) {
+    private static Policy readPolicy(DocRead read, JsonNode node) {
         if (node == null || node.isNull() || !node.isObject()) {
             read.problems.add("policy is required.");
             return new Policy(0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0);
@@ -300,7 +302,7 @@ public final class FaceJson {
                 read.integer(node, "maxPasses", "policy"));
     }
 
-    private static Mode readMode(Read read, JsonNode node) {
+    private static Mode readMode(DocRead read, JsonNode node) {
         if (node == null || node.isNull()) {
             return Mode.REPLAN;
         }
@@ -318,7 +320,7 @@ public final class FaceJson {
         };
     }
 
-    private static Ergonomics readErgonomics(Read read, JsonNode node, String path) {
+    private static Ergonomics readErgonomics(DocRead read, JsonNode node, String path) {
         if (node == null || node.isNull()) {
             read.problems.add(path + ".ergonomics is required.");
             return null;
@@ -336,110 +338,5 @@ public final class FaceJson {
                 yield null;
             }
         };
-    }
-
-    private static final class Read {
-        private final List<String> problems = new ArrayList<>();
-
-        private void finish() {
-            if (!problems.isEmpty()) {
-                throw new FaceRejection(problems);
-            }
-        }
-
-        private boolean failed() {
-            return !problems.isEmpty();
-        }
-
-        private void unknown(JsonNode node, Set<String> allowed, String path) {
-            Iterator<String> names = node.fieldNames();
-            while (names.hasNext()) {
-                String name = names.next();
-                if (!allowed.contains(name)) {
-                    problems.add(path + " has unknown field " + name + ".");
-                }
-            }
-        }
-
-        private String text(JsonNode node, String field, String path) {
-            JsonNode value = node.get(field);
-            if (value == null || value.isNull() || !value.isTextual() || value.asText().isBlank()) {
-                problems.add(path + "." + field + " is required.");
-                return "";
-            }
-            return value.asText();
-        }
-
-        private Optional<String> optionalText(JsonNode node, String field, String path) {
-            if (!node.has(field) || node.get(field).isNull()) {
-                return Optional.empty();
-            }
-            JsonNode value = node.get(field);
-            if (!value.isTextual()) {
-                problems.add(path + "." + field + " must be a string.");
-                return Optional.empty();
-            }
-            return Optional.of(value.asText());
-        }
-
-        private double number(JsonNode node, String field, String path) {
-            JsonNode value = node.get(field);
-            if (value == null || value.isNull()) {
-                problems.add(path + "." + field + " is required.");
-                return 0;
-            }
-            if (!value.isNumber()) {
-                problems.add(path + "." + field + " must be a number.");
-                return 0;
-            }
-            return value.doubleValue();
-        }
-
-        private int integer(JsonNode node, String field, String path) {
-            JsonNode value = node.get(field);
-            if (value == null || value.isNull()) {
-                problems.add(path + "." + field + " is required.");
-                return 0;
-            }
-            if (!value.isIntegralNumber()) {
-                problems.add(path + "." + field + " must be a whole number.");
-                return 0;
-            }
-            return value.intValue();
-        }
-
-        private List<String> strings(JsonNode node, String field, String path) {
-            JsonNode value = node.get(field);
-            if (value == null || !value.isArray()) {
-                problems.add(path + "." + field + " must be an array.");
-                return List.of();
-            }
-            List<String> items = new ArrayList<>();
-            for (JsonNode item : value) {
-                if (!item.isTextual()) {
-                    problems.add(path + "." + field + " must contain strings.");
-                } else {
-                    items.add(item.asText());
-                }
-            }
-            return items;
-        }
-
-        private List<Integer> integers(JsonNode node, String field, String path) {
-            JsonNode value = node.get(field);
-            if (value == null || !value.isArray()) {
-                problems.add(path + "." + field + " must be an array.");
-                return List.of();
-            }
-            List<Integer> items = new ArrayList<>();
-            for (JsonNode item : value) {
-                if (!item.isIntegralNumber()) {
-                    problems.add(path + "." + field + " must contain whole numbers.");
-                } else {
-                    items.add(item.intValue());
-                }
-            }
-            return items;
-        }
     }
 }

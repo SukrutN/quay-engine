@@ -35,6 +35,7 @@
         <includes>
           <include>*.json</include>
           <include>index.txt</include>
+          <include>putaway.txt</include>
         </includes>
       </resource>
     </resources>
