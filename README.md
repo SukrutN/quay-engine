@@ -22,6 +22,14 @@ java -jar cli/target/quay.jar place fixtures/forward-pick.json
 
 `lane.json` is a chill corner with an incumbent layout, a locked stockpot, and four SKUs. `forward-pick.json` is a 160-slot rack and thirty cartons. Both are data. The solver has no building of its own.
 
+## Direct a putaway day
+
+```bash
+java -jar cli/target/quay.jar putaway fixtures/putaway-day.json
+```
+
+A putaway day directs one day's receipts onto a reserve rack under three policies — a velocity skim, an affinity pull, and a seeded random fork to measure the other two against — while the forward face raises and settles through its replenish thresholds. The reading prints the walk meters, the golden-band share, the signal trace, and every directive. The day format is [docs/putaway.md](docs/putaway.md).
+
 ## Serve the API
 
 ```bash
@@ -41,4 +49,5 @@ An unknown fixture name is HTTP 400 with `application/problem+json`. The body is
 
 - [docs/architecture.md](docs/architecture.md) — why the domain is separate, and why there is no database
 - [docs/customizing.md](docs/customizing.md) — the file format, walked through `fixtures/lane.json`
+- [docs/putaway.md](docs/putaway.md) — the putaway day format and the three policies
 - [docs/adr/0001-scored-placement.md](docs/adr/0001-scored-placement.md) — why this search, and the size of face it is for

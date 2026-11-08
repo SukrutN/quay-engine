@@ -22,6 +22,10 @@ The objective is the sum of travel, cube waste, slow-in-golden, and light-on-flo
 
 A face document is the whole input. The placement is a function of that document. The service does not remember a previous run, a tenant, or a user. Callers who want history keep the response. Adding a database would invent a system of record this product does not own.
 
+## What a putaway run does
+
+Putaway answers share the same shape. `RunPutaway` times the three policies over one day document; the report carries directives, refusals, the replenish signal trace, and per-policy totals. The policies live in the domain (`PutawayCore` with `PutawayPolicy`), the day parsing in the application (`PutawayJson`, `PutawayLibrary` over the published fixtures), and [docs/putaway.md](putaway.md) records the format. The random fork replays `java.util.Random` exactly so the plan survives the port to the site.
+
 ## Why the showcase site is a separate repository
 
 The site is a visual walkthrough of one fictional floor. This service is the calculator you point at other floors: different racks, explicit slot lists, zones, locks, and incumbent layouts. The site's on-screen percentages are that presentation. They are not a contract of this solver.
