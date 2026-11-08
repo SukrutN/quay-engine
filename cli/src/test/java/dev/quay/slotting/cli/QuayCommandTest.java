@@ -37,6 +37,27 @@ class QuayCommandTest {
     }
 
     @Test
+    void putawayPrintsTheDayReading() throws Exception {
+        Path day = Files.createTempFile("putaway-day", ".json");
+        try (InputStream input = QuayCommandTest.class.getResourceAsStream("/fixtures/putaway-day.json")) {
+            Files.copy(input, day, StandardCopyOption.REPLACE_EXISTING);
+        }
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        ByteArrayOutputStream err = new ByteArrayOutputStream();
+        int code = QuayCommand.run(
+                new String[] {"putaway", day.toString()},
+                new PrintStream(out, true, StandardCharsets.UTF_8),
+                new PrintStream(err, true, StandardCharsets.UTF_8));
+        assertEquals(0, code);
+        String text = out.toString(StandardCharsets.UTF_8);
+        assertTrue(text.contains("Harbor & Lane day 07 (putaway-day)"));
+        assertTrue(text.contains("directed against the fork: walk 531.2 m against 740.0 m - 208.8 m less (28.2%)"));
+        assertTrue(text.contains("affinity against velocity: +4.8 m to walk its partners together"));
+        assertTrue(text.contains("MG-15 raise at 11 on hand, asks 19 cartons"));
+        assertEquals("", err.toString(StandardCharsets.UTF_8));
+    }
+
+    @Test
     void missingFileAndBadUsageFail() {
         ByteArrayOutputStream err = new ByteArrayOutputStream();
         int missing = QuayCommand.run(
