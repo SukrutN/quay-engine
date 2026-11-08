@@ -55,6 +55,30 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+  /v1/putaway:
+    post:
+      operationId: putaway
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: "#/components/schemas/PutawayFixtureRequest"
+                - $ref: "#/components/schemas/PutawayInlineRequest"
+      responses:
+        "200":
+          description: Every shipped policy over one day.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PutawayReport"
+        "400":
+          description: The fixture is unknown or the day cannot be directed.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
 components:
   schemas:
     FixtureRequest:
@@ -89,6 +113,122 @@ components:
           type: array
           items:
             type: string
+    PutawayFixtureRequest:
+      type: object
+      required: [fixture]
+      properties:
+        fixture:
+          type: string
+          example: putaway-day
+    PutawayInlineRequest:
+      type: object
+      required: [day]
+      properties:
+        day:
+          type: object
+          description: A putaway day document. See docs/putaway.md.
+    PutawayReport:
+      type: object
+      required: [dayId, dayName, elapsedMillis, outcomes]
+      properties:
+        dayId:
+          type: string
+        dayName:
+          type: string
+        elapsedMillis:
+          type: integer
+        outcomes:
+          type: array
+          items:
+            $ref: "#/components/schemas/PutawayOutcome"
+    PutawayOutcome:
+      type: object
+      required: [policy, directives, refusals, signals, totals]
+      properties:
+        policy:
+          type: string
+          enum: [velocity, affinity, random]
+        directives:
+          type: array
+          items:
+            $ref: "#/components/schemas/PutawayDirectiveRow"
+        refusals:
+          type: array
+          items:
+            $ref: "#/components/schemas/PutawayRefusalRow"
+        signals:
+          type: array
+          items:
+            $ref: "#/components/schemas/PutawaySignalRow"
+        totals:
+          $ref: "#/components/schemas/PutawayTotals"
+    PutawayDirectiveRow:
+      type: object
+      required: [receiptId, skuId, skuName, band, destination, units, uom, cartons]
+      properties:
+        receiptId:
+          type: string
+        skuId:
+          type: string
+        skuName:
+          type: string
+        band:
+          type: string
+          enum: [A, B, C]
+        destination:
+          type: string
+          enum: [forward, reserve]
+        units:
+          type: integer
+        uom:
+          type: string
+        cartons:
+          type: integer
+        slotId:
+          type: string
+        putawayMeters:
+          type: number
+    PutawayRefusalRow:
+      type: object
+      required: [receiptId, reason]
+      properties:
+        receiptId:
+          type: string
+        reason:
+          type: string
+    PutawaySignalRow:
+      type: object
+      required: [skuId, onHand, action, cartons]
+      properties:
+        skuId:
+          type: string
+        onHand:
+          type: number
+        action:
+          type: string
+          enum: [raise, quiet]
+        cartons:
+          type: integer
+    PutawayTotals:
+      type: object
+      required: [receipts, refused, cartons, cartonsForward, cartonsReserve, goldenShare, putawayMeters, baysTouched]
+      properties:
+        receipts:
+          type: integer
+        refused:
+          type: integer
+        cartons:
+          type: integer
+        cartonsForward:
+          type: integer
+        cartonsReserve:
+          type: integer
+        goldenShare:
+          type: number
+        putawayMeters:
+          type: number
+        baysTouched:
+          type: integer
     SlottingReport:
       type: object
       required: [faceId, faceName, mode, elapsedMillis, proposal]

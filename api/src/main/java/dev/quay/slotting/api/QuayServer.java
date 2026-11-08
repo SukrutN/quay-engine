@@ -5,10 +5,16 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.quay.slotting.FaceRejection;
 import dev.quay.slotting.PickFace;
+import dev.quay.slotting.PutawayDay;
+import dev.quay.slotting.PutawayRejection;
 import dev.quay.slotting.app.FaceJson;
 import dev.quay.slotting.app.FixtureLibrary;
+import dev.quay.slotting.app.PutawayJson;
+import dev.quay.slotting.app.PutawayLibrary;
+import dev.quay.slotting.app.RunPutaway;
 import dev.quay.slotting.app.SlotFace;
 import dev.quay.slotting.app.UnknownFixture;
+import dev.quay.slotting.app.UnknownDay;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import java.io.IOException;
@@ -28,6 +34,7 @@ public final class QuayServer {
     private static final Logger log = LoggerFactory.getLogger(QuayServer.class);
     private static final ObjectMapper MAPPER = new ObjectMapper();
     private static final Set<String> REQUEST_FIELDS = Set.of("fixture", "face");
+    private static final Set<String> PUTAWAY_REQUEST_FIELDS = Set.of("fixture", "day");
 
     private QuayServer() {}
 
@@ -37,8 +44,13 @@ public final class QuayServer {
     }
 
     public static Javalin create(FixtureLibrary library) {
+        return create(library, PutawayLibrary.fromClasspath());
+    }
+
+    public static Javalin create(FixtureLibrary library, PutawayLibrary putawayLibrary) {
         String openApi = loadOpenApi();
         SlotFace slotFace = new SlotFace();
+        RunPutaway runPutaway = new RunPutaway();
         Javalin app = Javalin.create(config -> config.showJavalinBanner = false);
         app.before(ctx -> ctx.attribute("startedNanos", System.nanoTime()));
         app.after(ctx -> {
@@ -53,11 +65,21 @@ public final class QuayServer {
         });
         app.exception(FaceRejection.class, (exception, ctx) -> problem(
                 ctx, 400, "urn:quay:slotting:invalid-face", "Invalid face", exception.getMessage(), exception.reasons()));
+        app.exception(PutawayRejection.class, (exception, ctx) -> problem(
+                ctx, 400, "urn:quay:putaway:invalid-day", "Invalid putaway day", exception.getMessage(),
+                exception.reasons()));
         app.exception(UnknownFixture.class, (exception, ctx) -> problem(
                 ctx,
                 400,
                 "urn:quay:slotting:unknown-fixture",
                 "Unknown fixture",
+                exception.getMessage(),
+                List.of()));
+        app.exception(UnknownDay.class, (exception, ctx) -> problem(
+                ctx,
+                400,
+                "urn:quay:putaway:unknown-day",
+                "Unknown putaway day",
                 exception.getMessage(),
                 List.of()));
         app.exception(Exception.class, (exception, ctx) -> {
@@ -67,6 +89,7 @@ public final class QuayServer {
         app.get("/health", ctx -> ctx.json(Map.of("status", "up")));
         app.get("/v1/openapi.yaml", ctx -> ctx.contentType("application/yaml").result(openApi));
         app.post("/v1/slotting", ctx -> ctx.json(slotFace.place(readRequest(ctx, library))));
+        app.post("/v1/putaway", ctx -> ctx.json(runPutaway.day(readPutawayRequest(ctx, library, putawayLibrary))));
         return app;
     }
 
@@ -106,6 +129,44 @@ public final class QuayServer {
             return library.get(fixture.asText());
         }
         return FaceJson.parse(node.get("face"));
+    }
+
+    private static PutawayDay readPutawayRequest(Context ctx, FixtureLibrary library, PutawayLibrary putawayLibrary) {
+        if (ctx.body().isBlank()) {
+            throw new PutawayRejection(List.of("Send a fixture name or a putaway day document."));
+        }
+        JsonNode node;
+        try {
+            node = MAPPER.readTree(ctx.body());
+        } catch (JsonProcessingException exception) {
+            throw new PutawayRejection(List.of("The request is not valid JSON."));
+        }
+        if (!node.isObject()) {
+            throw new PutawayRejection(List.of("The request must be a JSON object."));
+        }
+        Iterator<String> names = node.fieldNames();
+        while (names.hasNext()) {
+            String name = names.next();
+            if (!PUTAWAY_REQUEST_FIELDS.contains(name)) {
+                throw new PutawayRejection(List.of("Request has unknown field " + name + "."));
+            }
+        }
+        boolean named = node.hasNonNull("fixture");
+        boolean inline = node.has("day");
+        if (named && inline) {
+            throw new PutawayRejection(List.of("Send a fixture name or a putaway day document, not both."));
+        }
+        if (!named && !inline) {
+            throw new PutawayRejection(List.of("Send a fixture name or a putaway day document."));
+        }
+        if (named) {
+            JsonNode fixture = node.get("fixture");
+            if (!fixture.isTextual()) {
+                throw new PutawayRejection(List.of("fixture must be a string."));
+            }
+            return putawayLibrary.get(fixture.asText());
+        }
+        return PutawayJson.parse(node.get("day"));
     }
 
     private static void problem(Context ctx, int status, String type, String title, String detail, List<String> reasons) {

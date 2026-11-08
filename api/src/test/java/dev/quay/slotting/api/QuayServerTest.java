@@ -43,6 +43,7 @@ class QuayServerTest {
         HttpResponse<String> spec = send("GET", "/v1/openapi.yaml", null);
         assertEquals(200, spec.statusCode());
         assertTrue(spec.body().contains("/v1/slotting"));
+        assertTrue(spec.body().contains("/v1/putaway"));
     }
 
     @Test
@@ -86,6 +87,43 @@ class QuayServerTest {
         assertEquals(400, problem.get("status").asInt());
         assertTrue(problem.get("detail").asText().contains("Bolt of cloth"));
         assertFalse(problem.has("proposal"));
+    }
+
+    @Test
+    void putawayFixtureRunsAllThreePolicies() throws Exception {
+        HttpResponse<String> response = send("POST", "/v1/putaway", "{\"fixture\":\"putaway-day\"}");
+        assertEquals(200, response.statusCode());
+        JsonNode body = mapper.readTree(response.body());
+        assertEquals("putaway-day", body.get("dayId").asText());
+        JsonNode outcomes = body.get("outcomes");
+        assertEquals(3, outcomes.size());
+        JsonNode velocity = outcomes.get(0);
+        assertEquals("velocity", velocity.get("policy").asText());
+        assertEquals(0, velocity.get("totals").get("refused").asInt());
+        assertEquals(226, velocity.get("totals").get("cartons").asInt());
+        assertTrue(velocity.get("totals").get("putawayMeters").asDouble() < outcomes.get(2).get("totals").get("putawayMeters").asDouble());
+    }
+
+    @Test
+    void unknownPutawayFixtureIsAProblem() throws Exception {
+        HttpResponse<String> response = send("POST", "/v1/putaway", "{\"fixture\":\"no-such-day\"}");
+        assertEquals(400, response.statusCode());
+        assertTrue(response.headers().firstValue("content-type").orElse("").contains("application/problem+json"));
+        JsonNode body = mapper.readTree(response.body());
+        assertEquals("urn:quay:putaway:unknown-day", body.get("type").asText());
+        assertEquals("Unknown putaway day", body.get("title").asText());
+        assertFalse(body.has("outcomes"));
+    }
+
+    @Test
+    void anInlinePutawayDayThatCannotRunIsRejected() throws Exception {
+        HttpResponse<String> response = send("POST", "/v1/putaway", "{\"day\":{\"id\":\"bad\",\"name\":\"Bad\"}}");
+        assertEquals(400, response.statusCode());
+        JsonNode problem = mapper.readTree(response.body());
+        assertEquals("urn:quay:putaway:invalid-day", problem.get("type").asText());
+        assertEquals("Invalid putaway day", problem.get("title").asText());
+        assertTrue(problem.get("reasons").size() > 0);
+        assertFalse(problem.has("outcomes"));
     }
 
     private static JsonNode row(JsonNode assignment, String skuId) {
